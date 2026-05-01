@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Emilie-Eeva — Édition Signature RH</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--white:#ffffff;--black:#0c0c0c;--grey:#8a8a8a;--light:#f7f7f5;--border:#e2e2e2}
+html{scroll-behavior:smooth}
+body{background:var(--white);color:var(--black);font-family:'DM Sans',sans-serif;font-weight:300;overflow-x:hidden;cursor:none}
+
+#cursor{position:fixed;width:8px;height:8px;background:var(--black);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .3s,height .3s}
+#cursor-ring{position:fixed;width:32px;height:32px;border:1px solid rgba(12,12,12,.4);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%)}
+
+/* LOADER */
+#loader{position:fixed;inset:0;background:var(--white);display:flex;align-items:center;justify-content:center;z-index:9000;transition:opacity 1s ease,visibility 1s ease}
+#loader.hide{opacity:0;visibility:hidden}
+.loader-brand{font-family:'Cormorant Garamond',serif;font-size:clamp(1.2rem,4vw,2rem);font-weight:300;letter-spacing:.4em;text-transform:lowercase;opacity:0;animation:fadeIn 1.2s ease .3s forwards}
+.loader-line{width:0;height:1px;background:var(--black);margin:.8rem auto 0;animation:lineGrow 1.2s ease .6s forwards}
+.loader-sub{font-size:.55rem;letter-spacing:.35em;text-transform:uppercase;color:var(--grey);margin-top:.6rem;opacity:0;animation:fadeIn .8s ease 1.2s forwards;text-align:center}
+@keyframes lineGrow{to{width:120px}}
+
+/* HEADER */
+header{position:fixed;top:0;left:0;right:0;padding:1.8rem 3rem;display:flex;justify-content:space-between;align-items:center;z-index:500}
+.brand{font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:300;letter-spacing:.2em;text-transform:lowercase}
+.header-tag{font-size:.55rem;letter-spacing:.3em;text-transform:uppercase;color:var(--grey)}
+
+/* SCENE */
+#scene{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;transition:opacity .6s ease}
+.scene-eyebrow{font-size:.55rem;letter-spacing:.35em;text-transform:uppercase;color:var(--grey);margin-bottom:2.5rem;opacity:0;animation:fadeUp .8s ease 2s forwards}
+
+#bag-wrapper{position:relative;width:clamp(180px,28vw,340px);cursor:none;opacity:0;transform:translateY(24px);animation:bagEntry 1.2s cubic-bezier(.25,.46,.45,.94) 2.2s forwards;z-index:10;transition:transform .5s ease}
+@keyframes bagEntry{to{opacity:1;transform:translateY(0)}}
+#bag-wrapper.breathe{animation:bagEntry 1.2s cubic-bezier(.25,.46,.45,.94) 2.2s forwards,breathe 5s ease-in-out 3.5s infinite}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.018)}}
+#bag-wrapper:hover{transform:scale(1.03)!important}
+#bag-wrapper.clicked{animation:bagClick .5s ease forwards!important}
+@keyframes bagClick{0%{transform:scale(1)}40%{transform:scale(.97)}100%{transform:scale(1)}}
+#bag-img{width:100%;display:block;filter:drop-shadow(0 24px 80px rgba(0,0,0,.08))}
+.bag-cta{position:absolute;bottom:-3rem;left:50%;transform:translateX(-50%);font-size:.55rem;letter-spacing:.25em;text-transform:uppercase;color:var(--grey);white-space:nowrap;opacity:0;animation:fadeUp .8s ease 3.8s forwards}
+
+/* PRODUCTS */
+#products-layer{position:fixed;inset:0;background:var(--white);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:200;padding:6rem 2rem 3rem;overflow:hidden}
+.products-title-block{text-align:center;margin-bottom:clamp(2rem,5vh,4rem);opacity:0;animation:fadeUp .7s ease .1s forwards}
+.products-eyebrow{font-size:.55rem;letter-spacing:.35em;text-transform:uppercase;color:var(--grey);margin-bottom:.8rem}
+.products-title{font-family:'Cormorant Garamond',serif;font-size:clamp(1.8rem,4vw,2.8rem);font-weight:300;letter-spacing:.04em}
+.products-grid{display:flex;gap:clamp(1rem,3vw,3.5rem);align-items:flex-end;justify-content:center;flex-wrap:wrap;max-width:1100px}
+
+.product-card{display:flex;flex-direction:column;align-items:center;cursor:none;opacity:0;transform:translateY(70px) rotate(-2deg);transition:opacity .7s ease,transform .7s cubic-bezier(.25,.46,.45,.94);position:relative}
+.product-card.visible{opacity:1;transform:translateY(0) rotate(0deg)}
+.product-card.fading{opacity:0;transform:scale(.88);pointer-events:none;transition:all .35s ease}
+.product-card.floating{animation:floatCard 3.5s ease-in-out infinite}
+.product-card:nth-child(1).floating{animation-delay:0s}
+.product-card:nth-child(2).floating{animation-delay:.5s}
+.product-card:nth-child(3).floating{animation-delay:1s}
+.product-card:nth-child(4).floating{animation-delay:1.5s}
+@keyframes floatCard{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+
+.product-img-wrap{transition:transform .5s ease;filter:drop-shadow(0 12px 40px rgba(0,0,0,.07))}
+.product-card:hover .product-img-wrap{transform:scale(1.06)}
+.product-img-wrap img{display:block;width:clamp(80px,12vw,145px);height:auto;object-fit:contain}
+.product-label{margin-top:.9rem;text-align:center}
+.product-num{display:block;font-size:.5rem;letter-spacing:.25em;text-transform:uppercase;color:var(--grey)}
+.product-name{display:block;font-family:'Cormorant Garamond',serif;font-size:.95rem;font-weight:300;letter-spacing:.05em;margin-top:.2rem}
+.add-btn{margin-top:.8rem;background:none;border:1px solid var(--black);color:var(--black);font-family:'DM Sans',sans-serif;font-size:.5rem;letter-spacing:.2em;text-transform:uppercase;padding:.45rem 1.1rem;cursor:none;transition:background .3s ease,color .3s ease;position:relative;overflow:hidden}
+.add-btn::after{content:'';position:absolute;inset:0;background:var(--black);transform:translateX(-101%);transition:transform .3s ease;z-index:0}
+.add-btn:hover::after{transform:translateX(0)}
+.add-btn:hover{color:var(--white)}
+.add-btn .btn-text{position:relative;z-index:1}
+.add-btn.added{background:var(--black);color:var(--white)}
+.add-btn.added::after{transform:translateX(0)}
+
+/* DETAIL */
+#detail-layer{position:fixed;inset:0;background:var(--white);display:none;z-index:300;overflow-y:auto}
+.detail-back{position:fixed;top:2rem;left:2.5rem;font-size:.55rem;letter-spacing:.2em;text-transform:uppercase;color:var(--grey);cursor:none;display:flex;align-items:center;gap:.5rem;transition:color .3s ease;z-index:310}
+.detail-back:hover{color:var(--black)}
+.detail-back-arrow{font-size:.9rem;transition:transform .3s ease}
+.detail-back:hover .detail-back-arrow{transform:translateX(-4px)}
+.detail-grid{min-height:100vh;display:grid;grid-template-columns:1fr 1fr}
+.detail-left{background:var(--light);display:flex;align-items:center;justify-content:center;padding:5rem 4rem;position:sticky;top:0;height:100vh;opacity:0;transform:scale(.9);transition:all .9s cubic-bezier(.25,.46,.45,.94)}
+.detail-left.in{opacity:1;transform:scale(1)}
+.detail-left img{max-height:75vh;max-width:100%;object-fit:contain;filter:drop-shadow(0 20px 60px rgba(0,0,0,.09))}
+.detail-right{padding:8rem 5rem 5rem;overflow-y:auto;opacity:0;transform:translateX(30px);transition:all .9s ease .2s}
+.detail-right.in{opacity:1;transform:translateX(0)}
+.detail-num{font-size:.5rem;letter-spacing:.35em;text-transform:uppercase;color:var(--grey);margin-bottom:1.2rem}
+.detail-title{font-family:'Cormorant Garamond',serif;font-size:clamp(1.8rem,4vw,3rem);font-weight:300;line-height:1.15;margin-bottom:.4rem}
+.detail-subtitle{font-family:'Cormorant Garamond',serif;font-size:clamp(.9rem,2vw,1.2rem);font-weight:300;font-style:italic;color:var(--grey);margin-bottom:2rem}
+.detail-divider{width:40px;height:1px;background:var(--border);margin-bottom:2rem}
+.detail-body{font-size:.8rem;line-height:1.9;color:#3a3a3a;margin-bottom:1.5rem;max-width:480px}
+.detail-section-title{font-size:.55rem;letter-spacing:.25em;text-transform:uppercase;color:var(--black);margin:2rem 0 1rem;font-weight:400}
+.detail-bullet{font-size:.78rem;line-height:1.9;color:#3a3a3a;margin-bottom:1.2rem;padding-left:1rem;border-left:1px solid var(--border);max-width:480px}
+.detail-bullet strong{font-weight:400;font-family:'Cormorant Garamond',serif;font-size:.95rem;display:block;margin-bottom:.2rem;color:var(--black)}
+.detail-quote{font-family:'Cormorant Garamond',serif;font-size:clamp(1rem,2.5vw,1.3rem);font-weight:300;font-style:italic;line-height:1.7;color:var(--black);border-left:2px solid var(--black);padding-left:1.5rem;margin:2.5rem 0;max-width:480px}
+.note-block{margin-bottom:1.5rem;max-width:480px}
+.note-label{font-size:.5rem;letter-spacing:.3em;text-transform:uppercase;color:var(--grey);margin-bottom:.3rem}
+.note-text{font-size:.8rem;line-height:1.9;color:#3a3a3a;font-style:italic}
+.detail-add-wrap{margin-top:3rem;padding-top:2rem;border-top:1px solid var(--border)}
+.detail-add{background:var(--black);color:var(--white);border:none;font-family:'DM Sans',sans-serif;font-size:.55rem;letter-spacing:.25em;text-transform:uppercase;padding:1rem 2.8rem;cursor:none;transition:opacity .3s ease;display:inline-block}
+.detail-add:hover{opacity:.7}
+.detail-add.added{background:var(--grey)}
+
+/* CART */
+#cart-layer{position:fixed;inset:0;background:var(--white);display:none;z-index:400;align-items:center;justify-content:center;opacity:0;transition:opacity .7s ease}
+#cart-layer.visible{opacity:1}
+.cart-inner{max-width:580px;width:90%;padding:3rem 0}
+.cart-eyebrow{font-size:.5rem;letter-spacing:.35em;text-transform:uppercase;color:var(--grey);margin-bottom:3rem;opacity:0;transform:translateY(15px);transition:all .6s ease .3s}
+.cart-eyebrow.in{opacity:1;transform:translateY(0)}
+.cart-item{opacity:0;transform:translateY(15px);transition:all .6s ease .5s}
+.cart-item.in{opacity:1;transform:translateY(0)}
+.cart-name{font-family:'Cormorant Garamond',serif;font-size:clamp(2rem,5vw,3.5rem);font-weight:300;line-height:1.1;margin-bottom:.5rem}
+.cart-sub{font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:300;font-style:italic;color:var(--grey);margin-bottom:1.5rem}
+.cart-details{font-size:.75rem;line-height:2.2;color:#555}
+.cart-hr{border:none;border-top:1px solid var(--border);margin:2.5rem 0;opacity:0;transition:opacity .6s ease .7s}
+.cart-hr.in{opacity:1}
+.cart-coords-block{opacity:0;transform:translateY(15px);transition:all .6s ease .9s}
+.cart-coords-block.in{opacity:1;transform:translateY(0)}
+.cart-coords-label{font-size:.5rem;letter-spacing:.3em;text-transform:uppercase;color:var(--grey);margin-bottom:1rem}
+.cart-coord{font-size:.78rem;line-height:2.4}
+.cart-coord a{color:var(--black);text-decoration:none;border-bottom:1px solid var(--border);transition:border-color .3s ease}
+.cart-coord a:hover{border-color:var(--black)}
+.confirm-btn{margin-top:3rem;background:var(--black);color:var(--white);border:none;font-family:'DM Sans',sans-serif;font-size:.55rem;letter-spacing:.3em;text-transform:uppercase;padding:1.2rem 3.5rem;cursor:none;opacity:0;transition:opacity .6s ease 1.1s,background .3s ease}
+.confirm-btn.in{opacity:1}
+.confirm-btn:hover{opacity:.75}
+
+/* FINAL */
+#final-layer{position:fixed;inset:0;background:var(--black);color:var(--white);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:500;text-align:center;padding:3rem;opacity:0;transition:opacity 1s ease}
+#final-layer.visible{opacity:1}
+.final-top{font-size:.5rem;letter-spacing:.4em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:2.5rem;opacity:0}
+.final-top.in{animation:fadeUp .8s ease .5s forwards}
+.final-h1{font-family:'Cormorant Garamond',serif;font-size:clamp(2.2rem,8vw,5.5rem);font-weight:300;line-height:1.1;margin-bottom:1rem;opacity:0}
+.final-h1.in{animation:fadeUp .9s ease .8s forwards}
+.final-h2{font-family:'Cormorant Garamond',serif;font-size:clamp(1rem,3vw,1.8rem);font-weight:300;font-style:italic;color:rgba(255,255,255,.5);margin-bottom:3rem;opacity:0}
+.final-h2.in{animation:fadeUp .8s ease 1.1s forwards}
+.final-sep{width:50px;height:1px;background:rgba(255,255,255,.2);margin:0 auto 3rem;opacity:0}
+.final-sep.in{animation:fadeIn .8s ease 1.4s forwards}
+.final-text{font-size:.8rem;line-height:2;color:rgba(255,255,255,.45);max-width:480px;opacity:0}
+.final-text.in{animation:fadeUp .8s ease 1.7s forwards}
+.final-sig{margin-top:3rem;font-family:'Cormorant Garamond',serif;font-size:.85rem;font-style:italic;color:rgba(255,255,255,.25);opacity:0}
+.final-sig.in{animation:fadeUp .8s ease 2s forwards}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+@media(max-width:768px){
+  header{padding:1.5rem}
+  .detail-grid{grid-template-columns:1fr}
+  .detail-left{position:relative;height:60vw;min-height:260px;padding:2rem}
+  .detail-right{padding:3rem 2rem 4rem}
+}
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- LOADER -->
+<div id="loader">
+  <div style="text-align:center">
+    <p class="loader-brand">emilie eeva</p>
+    <div class="loader-line"></div>
+    <p class="loader-sub">Édition Signature RH</p>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="brand">emilie eeva</div>
+  <div class="header-tag">Collection 2026 — L'Oréal</div>
+</header>
+
+<!-- SCENE HOME -->
+<div id="scene">
+  <p class="scene-eyebrow">Édition Signature RH</p>
+  <div id="bag-wrapper">
+    <img id="bag-img" src="shopping_bag.png" alt="Shopping Bag Emilie Eeva">
+    <p class="bag-cta">Découvrir la collection</p>
+  </div>
+</div>
+
+<!-- PRODUCTS -->
+<div id="products-layer">
+  <div class="products-title-block">
+    <p class="products-eyebrow">Emilie-Eeva • Collection 2026 pour L'Oréal</p>
+    <h1 class="products-title">ÉDITION SIGNATURE RH</h1>
+  </div>
+  <div class="products-grid">
+    <div class="product-card" id="card-gloss" data-product="gloss">
+      <div class="product-img-wrap"><img src="gloss.png" alt="Gloss Signature"></div>
+      <div class="product-label"><span class="product-num">01</span><span class="product-name">Gloss Signature</span></div>
+      <button class="add-btn" id="btn-gloss"><span class="btn-text">Ajouter au panier</span></button>
+    </div>
+    <div class="product-card" id="card-mascara" data-product="mascara">
+      <div class="product-img-wrap"><img src="mascara.png" alt="Mascara Vision"></div>
+      <div class="product-label"><span class="product-num">02</span><span class="product-name">Mascara Vision</span></div>
+      <button class="add-btn" id="btn-mascara"><span class="btn-text">Ajouter au panier</span></button>
+    </div>
+    <div class="product-card" id="card-cream" data-product="cream">
+      <div class="product-img-wrap"><img src="cream.png" alt="Soin Révélateur"></div>
+      <div class="product-label"><span class="product-num">03</span><span class="product-name">Soin Révélateur</span></div>
+      <button class="add-btn" id="btn-cream"><span class="btn-text">Ajouter au panier</span></button>
+    </div>
+    <div class="product-card" id="card-parfume" data-product="parfume">
+      <div class="product-img-wrap"><img src="parfume.png" alt="Parfum Héritage"></div>
+      <div class="product-label"><span class="product-num">04</span><span class="product-name">Parfum Héritage</span></div>
+      <button class="add-btn" id="btn-parfume"><span class="btn-text">Ajouter au panier</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- DETAIL -->
+<div id="detail-layer">
+  <div class="detail-back" onclick="closeDetail()">
+    <span class="detail-back-arrow">←</span><span>Retour</span>
+  </div>
+  <div class="detail-grid">
+    <div class="detail-left" id="dl-left"><img id="dl-img" src="" alt=""></div>
+    <div class="detail-right" id="dl-right">
+      <div id="dl-content"></div>
+      <div class="detail-add-wrap">
+        <button class="detail-add" id="dl-add-btn"><span id="dl-add-text">Ajouter au panier</span></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CART -->
+<div id="cart-layer">
+  <div class="cart-inner">
+    <p class="cart-eyebrow" id="ce">Votre sélection</p>
+    <div class="cart-item" id="ci">
+      <div class="cart-name">Emilie-Eeva</div>
+      <div class="cart-sub">Votre future Assistante RH & Projets Formation en Alternance</div>
+      <div class="cart-details">
+        Quantité&nbsp;: 1 (unique)<br>
+        Disponibilité&nbsp;: Septembre 2026<br>
+        Lieu de livraison&nbsp;: 41 rue Martre, 92110 Clichy, France
+      </div>
+    </div>
+    <hr class="cart-hr" id="chr">
+    <div class="cart-coords-block" id="ccb">
+      <p class="cart-coords-label">Coordonnées de l'actif</p>
+      <div class="cart-coord">
+        +33 6 08 74 78 45<br>
+        <a href="mailto:emilieeeva@aol.com">emilieeeva@aol.com</a><br>
+        <a href="https://linkedin.com" target="_blank">LinkedIn →</a>
+      </div>
+    </div>
+    <button class="confirm-btn" id="cfb" onclick="confirmCart()">Confirmer l'alternance</button>
+  </div>
+</div>
+
+<!-- FINAL -->
+<div id="final-layer">
+  <p class="final-top" id="ft1">Confirmation reçue</p>
+  <h1 class="final-h1" id="ft2">Merci pour<br>votre confiance</h1>
+  <p class="final-h2" id="ft3">Votre future alternante est en route</p>
+  <div class="final-sep" id="ft4"></div>
+  <p class="final-text" id="ft5">La formule est prête, la rigueur est scellée, l'engagement est pris.<br><br>À très vite pour l'entretien de découverte.</p>
+  <p class="final-sig" id="ft6">Emilie-Eeva • Édition Signature RH • L'Oréal 2026</p>
+</div>
+
+<script>
+// CURSOR
+const cur=document.getElementById('cursor'),ring=document.getElementById('cursor-ring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px'});
+(function a(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(a)})();
+document.querySelectorAll('button,a,[data-product],.detail-back').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{cur.style.width='14px';cur.style.height='14px';ring.style.width='44px';ring.style.height='44px'});
+  el.addEventListener('mouseleave',()=>{cur.style.width='8px';cur.style.height='8px';ring.style.width='32px';ring.style.height='32px'});
+});
+
+// PRODUCT CONTENT
+const PD={
+  gloss:{img:'gloss.png',content:`
+    <p class="detail-num">01 — Identité</p>
+    <h2 class="detail-title">Gloss Signature</h2>
+    <p class="detail-subtitle">Mon ADN en Formule</p>
+    <div class="detail-divider"></div>
+    <p class="detail-body">Le Gloss Signature est la pièce maîtresse de mon sac, celle qui définit mon identité dès l'application. Bien plus qu'un simple embellisseur, c'est une texture qui me colle à la peau et fusionne avec ma manière d'exister professionnellement. Il apporte cette brillance immédiate qui capte l'attention (mon regard de Directrice Artistique et Chargée de Projets Digitaux en Freelance), tout en reposant sur une formule qui adhère, structure et soigne (ma rigueur en Licence RH). C'est l'équilibre d'une brillance qui ne file pas et d'une tenue qui ne faiblit jamais.</p>
+    <p class="detail-section-title">MA FORMULE</p>
+    <div class="detail-bullet"><strong>L'Adhérence Stratégique</strong>Ma structure est le fruit d'une auto-discipline souveraine forgée par l'autonomie du distanciel et l'exigence du freelancing. C'est une texture longue tenue qui me permet d'orchestrer des écosystèmes complexes comme le pilotage de données ou la maîtrise des outils digitaux avec une précision absolue.</div>
+    <div class="detail-bullet"><strong>Le Succès d'Édition</strong>La performance est mon actif de base. En tant que cheffe de projet pour le CDT94, j'ai piloté mon équipe vers la victoire d'un concours événementiel d'envergure. Ce succès, félicité par le jury et la présidence, garantit une formule conçue pour l'excellence et la victoire collective.</div>
+    <div class="detail-bullet"><strong>L'Infusion Harmonique</strong>Flûtiste en orchestre, je porte en moi la discipline de la partition et l'art de l'écoute collective. Cet héritage combiné à mes racines polyglottes entre l'Alsace et la Polynésie donne à ma formule une intelligence culturelle qui ne me quitte jamais.</div>
+    <p class="detail-section-title">MES COMPOSANTS ACTIFS</p>
+    <div class="detail-bullet"><strong>L'Agent de Liaison</strong>De l'univers des maisons de disques au Personal Shopping de luxe, je maîtrise l'art de traduire une âme en identité tangible. Mon œil pour le détail n'est pas un simple outil, c'est mon regard sur le monde.</div>
+    <div class="detail-bullet"><strong>L'Empreinte KORU9</strong>Fondatrice d'une marque éco-responsable, j'incarne le cycle du renouveau. À l'image de la nacre polynésienne, je traite l'humain et la stratégie comme des matières précieuses qui demandent autant de soin que de mise en lumière.</div>
+    <blockquote class="detail-quote">«\u202fCe gloss est ma signature. Il ne se superpose pas à moi, il m'unifie. Il est la preuve qu'on peut orchestrer une équipe et analyser des données, être créative et rigoureuse. Une structure solide sublimée par l'élégance instinctive.\u202f»</blockquote>
+  `},
+  mascara:{img:'mascara.png',content:`
+    <p class="detail-num">02 — Mon Regard RH</p>
+    <h2 class="detail-title">Mascara Vision</h2>
+    <p class="detail-subtitle">Définition & Amplitude</p>
+    <div class="detail-divider"></div>
+    <p class="detail-body">Le Mascara Vision ne se contente pas d'intensifier le présent\u202f; il sépare, définit et allonge chaque perspective pour offrir une lecture nette du potentiel humain. Ma vision des Ressources Humaines repose sur cet équilibre\u202f: une précision millimétrée quant au pilotage des données et une capacité à amplifier le sillage de chaque collaborateur. Je vois les RH comme l'art de mettre en lumière l'invisible pour dessiner l'avenir de la Maison.</p>
+    <p class="detail-section-title">MA VISION EN ACTION</p>
+    <div class="detail-bullet"><strong>La Haute Définition des Données</strong>Un regard juste commence par une donnée impeccable. Pour moi, structurer l'architecture des chiffres à travers des outils comme les tableaux croisés dynamiques ou le pilotage de SIRH est une quête de clarté. Cette rigueur permet de gainer l'information et de piloter les parcours de formation avec une netteté absolue, garantissant une vision sans aucune zone d'ombre.</div>
+    <div class="detail-bullet"><strong>L'Architecture du Volume</strong>Le développement des talents est le cœur battant de l'organisation. Ma vision consiste à utiliser la formation comme un levier d'amplitude. Je crois en une ingénierie pédagogique qui ne se contente pas de transmettre, mais qui crée un véritable mouvement de croissance, alignant les aspirations des individus sur les ambitions business de l'entreprise.</div>
+    <div class="detail-bullet"><strong>L'Agilité du Tracé</strong>Dans un environnement en mouvement, ma vision RH est celle de l'adaptation constante. Savoir lire les tendances, s'approprier les nouveaux outils digitaux et traduire les enjeux économiques en actions concrètes est la promesse d'une fonction RH capable d'ouvrir de nouveaux horizons stratégiques.</div>
+    <p class="detail-section-title">L'ÉVEIL DES TALENTS</p>
+    <div class="detail-bullet"><strong>Le Storytelling de l'Apprentissage</strong>Pour que les collaborateurs s'engagent, la formation doit être désirable. Ma vision intègre la création de contenus attractifs et inspirants comme un moteur d'adhésion. La communication RH est l'actif précieux qui donne envie à chacun de devenir l'artisan de sa propre évolution.</div>
+    <blockquote class="detail-quote">«\u202fMa vision des RH est celle d'une haute définition. Il s'agit de porter un regard d'expert sur la donnée pour mieux amplifier l'humain. Précision du tracé, volume des compétences et clarté du sillage\u202f: c'est ainsi que l'on révèle la force d'une grande Maison.\u202f»</blockquote>
+  `},
+  cream:{img:'cream.png',content:`
+    <p class="detail-num">03 — Le Soin Révélateur</p>
+    <h2 class="detail-title">Soin Révélateur</h2>
+    <div class="detail-divider"></div>
+    <p class="detail-body">Le Soin Révélateur est l'actif qui harmonise et transforme. Il incarne ma capacité à identifier les leviers de croissance pour bâtir une base RH à la fois saine et rayonnante. En fusionnant ma rigueur opérationnelle et mon instinct créatif, je réponds à la complexité de vos enjeux\u202f: une structure qui sécurise vos processus, une analyse qui guide vos décisions et une esthétique qui valorise votre culture.</p>
+    <p class="detail-section-title">MES ACTIFS COMPLÉMENTAIRES</p>
+    <div class="detail-bullet"><strong>Le Fixateur de Projets</strong>Une réussite éclatante repose sur une coordination invisible mais sans faille. J'apporte une structure fiable pour piloter les relations entre vos partenaires et vos talents. Ma gestion anticipe les besoins et fluidifie les échanges pour assurer la tenue de vos sessions de formation avec rigueur.</div>
+    <div class="detail-bullet"><strong>Le Concentré Analytique</strong>Déchiffrer la donnée brute est essentiel pour piloter la performance. Je maîtrise l'art de manipuler les indicateurs sur Excel pour en extraire des résultats concrets. Transformer des flux de données complexes en dashboards et reporting RH lisibles est ma valeur ajoutée pour vous offrir une vision opérationnelle sans zone d'ombre.</div>
+    <div class="detail-bullet"><strong>Le Sublimateur d'Adhésion</strong>Pour qu'un projet soit adopté, il doit être désirable. Mon regard de Directrice Artistique me permet de transformer vos communications RH en véritables outils de storytelling. Je crée l'éclat qui donne envie aux collaborateurs de s'engager avec authenticité dans leur propre évolution.</div>
+    <div class="detail-bullet"><strong>L'Infusion Internationale</strong>Votre Maison s'adresse au monde, et ma formule aussi. Mon agilité linguistique et mon intelligence culturelle permettent de porter vos projets avec élégance et justesse, quel que soit le territoire ou l'interlocuteur.</div>
+    <blockquote class="detail-quote">«\u202fLe Soin Révélateur ne se contente pas d'accompagner, il transforme la donnée brute en pilotage stratégique. J'apporte la polyvalence et la rigueur nécessaires pour que vos enjeux RH deviennent des résultats aussi précis qu'inspirants.\u202f»</blockquote>
+  `},
+  parfume:{img:'parfume.png',content:`
+    <p class="detail-num">04 — Parfum Héritage</p>
+    <h2 class="detail-title">Parfum Héritage</h2>
+    <p class="detail-subtitle">L'Aura des Perspectives</p>
+    <div class="detail-divider"></div>
+    <p class="detail-body">Le Parfum est bien plus qu'une fragrance, c'est une empreinte qui définit une identité. Dans ma pratique RH, il représente ces inspirations qui m'habitent et me projettent dans l'excellence de la Maison. C'est une immersion dans les visions de ceux qui ont bâti L'Oréal\u202f; un sillage qui guide ma réflexion et donne une résonance stratégique à chacun de mes projets.</p>
+    <p class="detail-section-title">LES NOTES</p>
+    <div class="note-block"><p class="note-label">Note de tête — L'Engagement</p><p class="note-text">Je m'aligne sur la vision de Nicolas Hieronimus, Directeur Général de L'Oréal\u202f: «\u202fNotre atout principal réside dans l'engagement et la créativité de nos collaborateurs et notre culture collective.\u202f»</p></div>
+    <div class="note-block"><p class="note-label">Note de cœur — L'Agilité</p><p class="note-text">J'incarne la conviction de Jean-Paul Agon, Président du Conseil d'Administration de L'Oréal\u202f: la Maison est une «\u202fstart-up centenaire\u202f».</p></div>
+    <div class="note-block"><p class="note-label">Note de fond — L'Ancrage</p><p class="note-text">Je rejoins l'ambition de Barbara Lavernos\u202f: «\u202fNous ne recrutons pas seulement pour un job, mais pour un parcours.\u202f»</p></div>
+    <blockquote class="detail-quote">«\u202fUn parfum sans histoire est un parfum sans sillage. En nourrissant mon parcours RH de ces visions inspirantes, je m'assure que mon énergie apporte de la clarté et de l'élégance au service des projets de la Maison.\u202f»</blockquote>
+  `}
+};
+
+let cart={},currentProd=null;
+
+// LOADER
+window.addEventListener('load',()=>{
+  setTimeout(()=>{
+    document.getElementById('loader').classList.add('hide');
+    setTimeout(()=>document.getElementById('bag-wrapper').classList.add('breathe'),2000);
+  },1400);
+});
+
+// BAG
+document.getElementById('bag-wrapper').addEventListener('click',openProducts);
+
+function openProducts(){
+  const bag=document.getElementById('bag-wrapper');
+  bag.classList.add('clicked');bag.style.pointerEvents='none';
+  setTimeout(()=>{
+    const s=document.getElementById('scene');
+    s.style.opacity='0';s.style.transition='opacity .5s ease';
+    setTimeout(()=>{
+      s.style.display='none';
+      const pl=document.getElementById('products-layer');
+      pl.style.display='flex';
+      const cards=document.querySelectorAll('.product-card');
+      [0,220,440,660].forEach((d,i)=>{
+        setTimeout(()=>{
+          cards[i].classList.add('visible');
+          setTimeout(()=>cards[i].classList.add('floating'),900);
+        },d);
+      });
+      cards.forEach(card=>{
+        card.addEventListener('click',e=>{if(e.target.closest('.add-btn'))return;openDetail(card.dataset.product)});
+      });
+      ['gloss','mascara','cream','parfume'].forEach(k=>{
+        document.getElementById('btn-'+k).addEventListener('click',e=>{e.stopPropagation();addToCart(k)});
+      });
+    },500);
+  },400);
+}
+
+function openDetail(key){
+  currentProd=key;
+  const p=PD[key];
+  document.getElementById('dl-img').src=p.img;
+  document.getElementById('dl-content').innerHTML=p.content;
+  const ab=document.getElementById('dl-add-btn');
+  if(cart[key]){ab.classList.add('added');document.getElementById('dl-add-text').textContent='Ajouté ✓';}
+  else{ab.classList.remove('added');document.getElementById('dl-add-text').textContent='Ajouter au panier';}
+  ab.onclick=addFromDetail;
+  document.querySelectorAll('.product-card').forEach(c=>{if(c.dataset.product!==key)c.classList.add('fading')});
+  const dl=document.getElementById('detail-layer');
+  dl.style.display='block';dl.scrollTop=0;
+  requestAnimationFrame(()=>{
+    document.getElementById('dl-left').classList.add('in');
+    document.getElementById('dl-right').classList.add('in');
+  });
+}
+
+function closeDetail(){
+  document.getElementById('dl-left').classList.remove('in');
+  document.getElementById('dl-right').classList.remove('in');
+  setTimeout(()=>{
+    document.getElementById('detail-layer').style.display='none';
+    document.querySelectorAll('.product-card').forEach(c=>c.classList.remove('fading'));
+    currentProd=null;
+  },500);
+}
+
+function addFromDetail(){
+  if(!currentProd)return;
+  addToCart(currentProd);
+  document.getElementById('dl-add-btn').classList.add('added');
+  document.getElementById('dl-add-text').textContent='Ajouté ✓';
+}
+
+function addToCart(key){
+  cart[key]=true;
+  const btn=document.getElementById('btn-'+key);
+  if(btn){btn.classList.add('added');btn.querySelector('.btn-text').textContent='Ajouté ✓';}
+  if(Object.keys(cart).length===4)setTimeout(openCart,700);
+}
+
+function openCart(){
+  document.getElementById('products-layer').style.opacity='0';
+  document.getElementById('products-layer').style.transition='opacity .5s ease';
+  document.getElementById('detail-layer').style.display='none';
+  setTimeout(()=>{
+    document.getElementById('products-layer').style.display='none';
+    const cl=document.getElementById('cart-layer');cl.style.display='flex';
+    requestAnimationFrame(()=>{
+      cl.classList.add('visible');
+      setTimeout(()=>['ce','ci','chr','ccb','cfb'].forEach(id=>document.getElementById(id).classList.add('in')),200);
+    });
+  },500);
+}
+
+function confirmCart(){
+  const cl=document.getElementById('cart-layer');
+  cl.style.opacity='0';cl.style.transform='translateX(-60px)';cl.style.transition='opacity .6s ease,transform .6s ease';
+  setTimeout(()=>{
+    cl.style.display='none';
+    const fl=document.getElementById('final-layer');fl.style.display='flex';
+    requestAnimationFrame(()=>{
+      fl.classList.add('visible');
+      ['ft1','ft2','ft3','ft4','ft5','ft6'].forEach(id=>document.getElementById(id).classList.add('in'));
+    });
+  },600);
+}
+</script>
+</body>
+</html>
